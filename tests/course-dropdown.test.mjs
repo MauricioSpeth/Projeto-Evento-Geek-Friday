@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const component=readFileSync(fileURLToPath(new URL('../src/components/ParticipanteFields.tsx',import.meta.url)),'utf8');
+const dropdown=readFileSync(fileURLToPath(new URL('../src/components/DarkDropdown.tsx',import.meta.url)),'utf8');
+const css=readFileSync(fileURLToPath(new URL('../src/app/globals.css',import.meta.url)),'utf8');
+const courseList=readFileSync(fileURLToPath(new URL('../src/lib/cursos.ts',import.meta.url)),'utf8');
+test('Curso e Período usam dropdown escuro, sem opções nativas visíveis',()=>{
+ assert.match(component,/import DarkDropdown from '\.\/DarkDropdown'/);
+ assert.match(component,/onChange=\{curso=>onChange\(\{\.\.\.value,curso,periodo:''\}\)\}/);
+ assert.match(component,/maxPeriodosCurso\(value\.curso\)/);
+ assert.match(component,/hasCourse=value\.tipo!==['"]visitante['"]/);
+ assert.match(component,/hasPeriod=value\.tipo===['"]universitario['"]/);
+ assert.match(component,/required disabled=\{!value\.curso\}/);
+ assert.doesNotMatch(component,/<datalist\b|<select\b/);
+ assert.match(courseList,/Terapia Ocupacional/);
+});
+test('Dropdown mantém teclado, validação de formulário, clique fora e menu sobre o modal',()=>{
+ assert.match(dropdown,/role="combobox"/);
+ assert.match(dropdown,/role="listbox"/);
+ assert.match(dropdown,/role="option"/);
+ assert.match(dropdown,/e\.key==='Escape'/);
+ assert.match(dropdown,/e\.key==='ArrowDown'/);
+ assert.match(dropdown,/e\.key==='Enter'/);
+ assert.match(dropdown,/onInvalid=/);
+ assert.match(dropdown,/required=\{required\}/);
+ assert.match(dropdown,/createPortal\(/);
+ assert.match(css,/\.dropdown-escuro-lista\s*\{/);
+ assert.match(css,/background: #202129/);
+});

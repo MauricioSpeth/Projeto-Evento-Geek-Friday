@@ -1,0 +1,40 @@
+# Dados privados e ambiente
+.env
+.env.*
+!.env.example
+
+# Chaves, certificados, segredos e arquivos de banco
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.dump
+*.backup
+*.sql.gz
+*.db
+*.sqlite
+*.sqlite3
+
+# Dados exportados de participantes e backups JSON
+backups/
+app-geek-backup-*.json
+*backup*.json
+*.csv
+*.xlsx
+*.xls
+
+# Dependências, compilação e caches
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+*.log
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
