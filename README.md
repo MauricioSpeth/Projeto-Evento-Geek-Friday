@@ -137,3 +137,26 @@ Consulte [SECURITY.md](SECURITY.md) e [docs/ARQUITETURA.md](docs/ARQUITETURA.md)
 - [Como preparar capturas com dados fictícios](docs/CAPTURAS-DE-TELA.md)
 
 **Licença:** a definir pelo titular do projeto. Publicar o código não concede automaticamente permissão de reutilização.
+
+## 📸 Demonstração do sistema
+
+### Painel administrativo
+![Painel administrativo](docs/images/painel-admin.png)
+
+### Tela de login
+![Tela de login](docs/images/login.png)
+
+### QR Code dinâmico
+![QR Code para inscrição](docs/images/qr-code.png)
+
+### Cadastro de universitário
+![Cadastro de universitário](docs/images/cadastro-aluno.jpg)
+
+### Cadastro de professor
+![Cadastro de professor](docs/images/cadastro-professor.jpg)
+
+### Cadastro de visitante
+![Cadastro de visitante](docs/images/cadastro-visitante.jpg)
+
+### Proteção contra cadastros duplicados
+![Cadastro já realizado](docs/images/cadastro-realizado.jpg)
