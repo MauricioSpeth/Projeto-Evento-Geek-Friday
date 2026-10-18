@@ -150,13 +150,13 @@ Consulte [SECURITY.md](SECURITY.md) e [docs/ARQUITETURA.md](docs/ARQUITETURA.md)
 ![QR Code para inscrição](docs/images/qr-code.png)
 
 ### Cadastro de universitário
-![Cadastro de universitário](docs/images/cadastro-aluno.jpg)
+![Cadastro de universitário](docs/images/cadastro-aluno.png)
 
 ### Cadastro de professor
-![Cadastro de professor](docs/images/cadastro-professor.jpg)
+![Cadastro de professor](docs/images/cadastro-professor.png)
 
 ### Cadastro de visitante
-![Cadastro de visitante](docs/images/cadastro-visitante.jpg)
+![Cadastro de visitante](docs/images/cadastro-visitante.png)
 
 ### Proteção contra cadastros duplicados
-![Cadastro já realizado](docs/images/cadastro-realizado.jpg)
+![Cadastro já realizado](docs/images/cadastro-realizado.png)
