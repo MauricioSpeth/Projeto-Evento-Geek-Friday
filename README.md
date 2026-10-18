@@ -1,25 +1,25 @@
-# App Geek — Sistema de inscrições para eventos 🎃
 
-**Aplicação full-stack com cadastro por QR Code temporário, painel administrativo e PostgreSQL.**
+# 🎃 App Geek — Sistema de Inscrições para Eventos
 
-> **Edição pública para portfólio.** Esta cópia apresenta o código-fonte, **sem dados reais de participantes, arquivos de configuração privados ou acesso ao banco de produção**. Para executar, crie um PostgreSQL de demonstração e configure seu próprio `.env.local`.
+Sistema web full-stack desenvolvido para gerenciar inscrições em eventos acadêmicos, utilizando QR Code dinâmico, autenticação de administradores e banco de dados PostgreSQL.
 
-## Visão geral
+**Tecnologias:** Next.js • React • TypeScript • Node.js • PostgreSQL
 
-O App Geek foi desenvolvido para apoiar a portaria de eventos: o participante escaneia um QR Code temporário no monitor, preenche os dados no celular, e a equipe acompanha os registros no painel de administração. Frontend e APIs são implementados juntos em **Next.js App Router**, sem necessidade de hospedar servidores HTTP separados para a interface e o QR.
+## 🖥️ Visão geral
 
-### Funcionalidades
+![Painel administrativo](docs/images/painel-admin.png)
 
-- **QR Code dinâmico** com duração ajustável (1–3600 segundos) e sessão de formulário de **3 minutos**.
-- Cadastro de **universitários** (curso e período), **professores** (curso) e **visitantes**.
-- **Validação de períodos por curso** (8 ou 10 semestres, conforme a graduação).
-- **Painel administrativo** com interface azul-escura, indicadores, gráficos reais, filtros, tabela rolável e cadastro manual.
-- **Múltiplos administradores** e presença online; lista retrátil com três contas visíveis e rolagem.
-- **Administrador master** (`admin`) com autorização no servidor para excluir outros administradores e administrar backups.
-- **Controle de inscrições** ligado/desligado, persistido em PostgreSQL e verificado nas APIs.
-- **Antiduplicidade** por nome + tipo no banco e bloqueio complementar por cookie do navegador.
-- **Exportação CSV** de todos os participantes ou somente universitários.
-- **Backup lógico JSON** e limpeza **somente de inscrições**, protegida por senha do master e confirmação explícita, com inscrições desligadas.
+O App Geek permite gerenciar participantes, acompanhar estatísticas em tempo real, configurar inscrições e exportar os dados do evento.
+
+### Principais funcionalidades
+
+- QR Code dinâmico com validade configurável
+- Cadastro de universitários, professores e visitantes
+- Painel administrativo com gráficos e filtros
+- Administradores online e controle de permissões
+- Exportação de cadastros em CSV
+- Backup e limpeza protegida dos dados
+- Interface responsiva para computadores e celulares
 
 ### Fluxo do evento
 
