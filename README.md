@@ -130,14 +130,6 @@ docs/              → arquitetura, privacidade e publicação
 
 Consulte [SECURITY.md](SECURITY.md) e [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
-## Para apresentar o projeto
-
-- [Guia para publicar no GitHub sem afetar o Netlify](docs/PUBLICAR-NO-GITHUB.md)
-- [Texto sugerido para o LinkedIn](docs/LINKEDIN.md)
-- [Como preparar capturas com dados fictícios](docs/CAPTURAS-DE-TELA.md)
-
-**Licença:** a definir pelo titular do projeto. Publicar o código não concede automaticamente permissão de reutilização.
-
 ## 📸 Demonstração do sistema
 
 ### Painel administrativo
