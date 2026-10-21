@@ -29,5 +29,6 @@ test('APIs públicas retornam erro neutro sem explicar a trava',()=>{
  assert.match(participantes,/Error\('Cadastro já realizado\.'\)/);
  assert.match(security,/if\(e\.constraint==='dispositivos_cadastrados_pkey'\)return 'Cadastro já realizado\.'/);
  assert.match(form,/r\.status===409&&data\.mensagem==='Cadastro já realizado\.'/);
- assert.match(form,/localStorage\.setItem\(STORE_KEY,'1'\)/);
+ assert.doesNotMatch(form,/localStorage/);
+ assert.match(form,/fetch\('\/api\/sessao'/);
 });

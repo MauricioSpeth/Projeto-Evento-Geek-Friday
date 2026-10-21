@@ -1,5 +1,6 @@
 'use client';
 import {useCallback,useEffect,useMemo,useState} from 'react';
+import {useDialogKeyboard} from '@/lib/useDialogKeyboard';
 import {useRouter} from 'next/navigation';
 import {CURSOS} from '@/lib/cursos';
 import {ParticipanteFields,blankForm} from './ParticipanteFields';
@@ -59,6 +60,8 @@ export default function AdminPanel({username,isGeral}:{username:string;isGeral:b
  const [nameFilter,setNameFilter]=useState(''),[typeFilter,setTypeFilter]=useState(''),[courseFilter,setCourseFilter]=useState('');
  const [editor,setEditor]=useState<{kind:'novo'|'editar';id?:number}|null>(null),[form,setForm]=useState<ParticipanteForm>(blankForm());
  const [newAdmin,setNewAdmin]=useState(false),[adminUser,setAdminUser]=useState(''),[adminPass,setAdminPass]=useState(''),[adminConfirm,setAdminConfirm]=useState('');
+ const closeDialogs=useCallback(()=>{setEditor(null);setNewAdmin(false);},[]);
+ useDialogKeyboard(!!editor||newAdmin,closeDialogs);
  const refresh=useCallback(async(silent=false)=>{try{const all=await api<Participante[]>('/api/participantes');setEntries(all);if(!silent)setError('');}catch(err){if(!silent)setError(err instanceof Error?err.message:'Erro de conexão.');}},[]);
  useEffect(()=>{refresh();const timer=setInterval(()=>{if(!document.hidden)refresh(true);},10000);return()=>clearInterval(timer);},[refresh]);
  useEffect(()=>{if(window.matchMedia('(max-width: 900px)').matches)setLateralAberta(false);},[]);

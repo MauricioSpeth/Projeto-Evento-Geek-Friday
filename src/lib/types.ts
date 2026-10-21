@@ -10,7 +10,7 @@ export function validarParticipante(value:unknown):{erro:string}|{valor:{nome:st
  const data=value as Record<string,unknown>;
  const nome=typeof data.nome==='string'?data.nome.trim().replace(/\s+/g,' '):'';
  if(!nome||nome.length>150)return {erro:'Nome deve ter entre 1 e 150 caracteres.'};
- if(!['aluno','visitante','professor'].includes(String(data.tipo)))return {erro:'Tipo inválido.'};
+ if(typeof data.tipo!=='string'||!['aluno','visitante','professor'].includes(data.tipo))return {erro:'Tipo inválido.'};
  const tipo=data.tipo as TipoBanco;
  let curso:null|string=null,periodo:null|number=null;
  if(tipo!=='visitante'){
@@ -18,7 +18,7 @@ export function validarParticipante(value:unknown):{erro:string}|{valor:{nome:st
   if(!curso||curso.length>100)return {erro:'Selecione um curso válido.'};
  }
  if(tipo==='aluno'){
-  if(!/^(10|[1-9])$/.test(String(data.periodo??'')))return {erro:'O período deve ser um número de 1 a 10.'};
+  if((typeof data.periodo!=='number'&&typeof data.periodo!=='string')||!/^(10|[1-9])$/.test(String(data.periodo)))return {erro:'O período deve ser um número de 1 a 10.'};
   periodo=Number(data.periodo);
   const maximo=maxPeriodosCurso(curso!);
   if(periodo>maximo)return {erro:`O curso ${curso} permite apenas períodos do 1º ao ${maximo}º.`};
