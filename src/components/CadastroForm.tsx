@@ -3,7 +3,6 @@ import {useEffect,useRef,useState} from 'react';
 import {ParticipanteFields,blankForm} from './ParticipanteFields';
 import AdminsOnline from './AdminsOnline';
 import {fromForm,type ParticipanteForm} from '@/lib/types';
-const STORE_KEY='evento_cadastro_feito_neste_aparelho';
 export default function CadastroForm(){
  const [form,setForm]=useState<ParticipanteForm>(blankForm());
  const [status,setStatus]=useState<'verificando'|'ativo'|'expirado'|'bloqueado'>('verificando');
@@ -13,8 +12,7 @@ export default function CadastroForm(){
  useEffect(()=>{
   let mounted=true;
   async function verify(){
-   // localStorage é apenas um aviso rápido; a trava real fica no PostgreSQL.
-   if(localStorage.getItem(STORE_KEY)==='1'){if(mounted){setStatus('bloqueado');setMessage('Cadastro já realizado.');}return;}
+   // O servidor decide se este navegador já está cadastrado.
    try{
     const r=await fetch('/api/sessao',{cache:'no-store'});const data=await r.json();if(!mounted)return;
     if(r.status===409){setStatus('bloqueado');setMessage('Cadastro já realizado.');return;}
@@ -29,7 +27,8 @@ export default function CadastroForm(){
   async function verificarPausa(){
    try{const r=await fetch('/api/sessao',{cache:'no-store'});
     if(!montado)return;
-    if(r.status===423){setStatus('expirado');setMessage('Inscrições pausadas pela organização.');}
+    if(r.status===409){setStatus('bloqueado');setMessage('Cadastro já realizado.');}
+    else if(r.status===423){setStatus('expirado');setMessage('Inscrições pausadas pela organização.');}
     else if(r.status===403){setStatus('expirado');setMessage('Sessão encerrada. Escaneie outro QR Code quando o sistema estiver ligado.');}
    }catch{ /* POST também verifica o estado, mesmo se esta consulta falhar. */ }
   }
@@ -42,7 +41,7 @@ export default function CadastroForm(){
   try{
    const r=await fetch('/api/participantes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fromForm(form))});const data=await r.json();
    if(!r.ok){if(r.status===409&&data.mensagem==='Cadastro já realizado.'){setStatus('bloqueado');setMessage('Cadastro já realizado.');return;}throw Error(data.mensagem||'Não foi possível realizar cadastro.');}
-   localStorage.setItem(STORE_KEY,'1');setStatus('bloqueado');setMessage('Cadastro já realizado.');setForm(blankForm());
+   setStatus('bloqueado');setMessage('Cadastro já realizado.');setForm(blankForm());
   }catch(err){setMessage(`❌ ${err instanceof Error?err.message:'Falha no cadastro.'}`);}finally{setBusy(false);}
  }
  if(status==='bloqueado')return <main className="pagina">
