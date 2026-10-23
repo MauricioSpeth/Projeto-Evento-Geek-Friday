@@ -1,154 +1,140 @@
+# App Geek — inscrições por QR Code e caixa das barracas para eventos acadêmicos
 
-# 🎃 App Geek — Sistema de Inscrições para Eventos
+![Next.js](https://img.shields.io/badge/Next.js_15-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Testes](https://img.shields.io/badge/testes-269_automáticos_+_28_casos-2ea44f)
 
-Sistema web full-stack desenvolvido para gerenciar inscrições em eventos acadêmicos, utilizando QR Code dinâmico, autenticação de administradores e banco de dados PostgreSQL.
+Sistema web full-stack criado para o **Geek Friday / HallowGeek** da Faculdade Uniguaçu. Ele resolve dois problemas do evento:
 
-**Tecnologias:** Next.js • React • TypeScript • Node.js • PostgreSQL
+1. **Saber exatamente quem passou pelo evento:** a inscrição é feita pelo celular, lendo um QR Code que muda sozinho. Esses registros servem de base para emitir certificados com horas para os alunos.
+2. **Controlar as vendas das barracas dos cursos:** cada curso tem o seu caixa (PDV). Ele registra vendas, calcula o troco, abre e fecha turnos e emite um relatório em formato de recibo.
 
-## 🖥️ Visão geral
+> 🔒 **O código-fonte é privado.** Esta página apresenta o projeto: telas, arquitetura, decisões técnicas, requisitos e testes. Posso mostrar o código em entrevista.
 
-![Painel administrativo](docs/images/painel-admin.png)
+---
 
-O App Geek permite gerenciar participantes, acompanhar estatísticas em tempo real, configurar inscrições e exportar os dados do evento.
+## Telas
 
-### Principais funcionalidades
+### Inscrição do participante
 
-- QR Code dinâmico com validade configurável
-- Cadastro de universitários, professores e visitantes
-- Painel administrativo com gráficos e filtros
-- Administradores online e controle de permissões
-- Exportação de cadastros em CSV
-- Backup e limpeza protegida dos dados
-- Interface responsiva para computadores e celulares
+| QR Code dinâmico (telão do evento) | Cadastro no celular |
+|---|---|
+| ![QR Code dinâmico](docs/img/02-qr-code.png) | ![Cadastro no celular](docs/img/03-cadastro-celular.png) |
 
-### Fluxo do evento
+O QR é trocado de tempos em tempos. Depois de lido, a pessoa tem 3 minutos para concluir o cadastro, e cada aparelho só cadastra uma vez.
 
-```text
-Administrador faz login → abre o QR em uma nova guia
-         ↓
-Participante escaneia → /entrar valida QR → 3 minutos para preencher
-         ↓
-Cadastro → regras de curso/período e duplicidade → PostgreSQL
-         ↓
-Painel: gráficos, busca, edição, exportação CSV e encerramento do evento
+### Painel da organização
+
+![Painel de cadastros](docs/img/01-painel-admin.png)
+
+O painel mostra indicadores em tempo real, gráficos por tipo de participante e por curso, além de busca e filtros. Também permite editar cadastros, exportar CSV, fazer backup, ligar ou desligar as inscrições e ajustar a validade do QR.
+*(Dados de demonstração. Os nomes são fictícios.)*
+
+### Módulo Caixa das Barracas
+
+| Escolha do curso | Central da organização |
+|---|---|
+| ![Escolha do curso](docs/img/04-caixa-escolha-curso.png) | ![Central do caixa](docs/img/05-caixa-central.png) |
+
+**Venda, com comanda e troco sugerido em notas:**
+
+![Tela de venda](docs/img/06-caixa-vender.png)
+
+**Turno de caixa:** abertura com fundo de troco, sangria e suprimento, fechamento com conferência da gaveta e relatórios guardados por turno.
+
+![Turno de caixa](docs/img/07-caixa-turno.png)
+
+| Recibo do turno (imprimir/PDF) | No celular |
+|---|---|
+| ![Recibo](docs/img/08-caixa-recibo.png) | ![Caixa no celular](docs/img/09-caixa-celular.png) |
+
+---
+
+## Funcionalidades
+
+**Inscrições**
+- QR Code dinâmico com validade configurável e token temporário assinado.
+- Cadastro de universitários (curso e período), professores e visitantes.
+- Bloqueio de cadastro duplicado por aparelho.
+- Painel com gráficos, busca, filtros, edição e exportação CSV.
+- Vários administradores, com indicação de quem está online e um administrador *master*.
+- Backup e limpeza protegida dos dados ao fim do evento.
+
+**Caixa das Barracas**
+- Login próprio para cada curso, com um link exclusivo para cada barraca.
+- Cadastro de produtos com categoria, estoque opcional e opção de pausar a venda.
+- Venda em dinheiro, Pix, crédito ou débito. O troco aparece com sugestão de notas.
+- Turnos de caixa com fundo de troco, sangria e suprimento. No fechamento, o sistema calcula o esperado, recebe o valor contado e mostra a diferença.
+- Relatório de cada turno no formato de recibo (imprimir ou PDF) e exportação CSV compatível com o Excel.
+- Central da organização com o total do evento, as vendas por forma de pagamento e a situação de cada barraca.
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+  subgraph Navegador
+    P[Participante<br/>celular] -->|lê o QR| E[/entrar/]
+    A[Organização] --> PA[Painel /admin]
+    C[Caixa do curso] --> CX[/caixa/&lt;curso&gt;/]
+  end
+  E --> API
+  PA --> API
+  CX --> API
+  subgraph Servidor["Next.js (Route Handlers · Node.js)"]
+    API[API REST] --> R[Regras de negócio<br/>validação · sessões · rate limit]
+  end
+  R --> DB[(PostgreSQL)]
 ```
+
+- **Front e back no mesmo projeto Next.js (App Router).** As páginas são componentes React e a API usa Route Handlers.
+- **O servidor é a fonte da verdade.** Preço, total, troco, estoque e saldo da gaveta são recalculados no servidor, com os dados do banco. O valor enviado pela tela nunca é usado.
+- **Dinheiro guardado em centavos (inteiros)**, para não ter erro de arredondamento. Venda, baixa de estoque e movimento de caixa são gravados juntos, numa única transação.
+- **Migrações SQL versionadas.** Por exemplo, um índice único parcial garante só um turno aberto por barraca.
+
+## Segurança
+
+- Senhas guardadas com hash **scrypt**. As sessões ficam no banco, com **cookies HTTP-only**.
+- **Limite de tentativas de login:** depois de 5 erros em 15 minutos, aquele login é bloqueado por 15 minutos.
+- **Conferência da origem** em toda requisição que altera dados, contra CSRF.
+- **Isolamento entre barracas:** cada curso só enxerga e altera o próprio caixa, e o servidor confere isso em todas as rotas.
+- **CSV seguro:** a exportação neutraliza fórmulas maliciosas (*CSV injection*).
+- **Privacidade (LGPD):** o caixa não guarda nenhum dado pessoal.
+
+## Qualidade e testes
+
+- **269 testes automáticos** (Node.js Test Runner), cobrindo regras de negócio, segurança e regressões.
+- **28 casos de teste do módulo de caixa**, ligados aos requisitos. Os casos CT01 a CT24 rodam por um roteiro automático contra a API, e os casos CT25 a CT28 foram executados no navegador. **Todos foram aprovados.**
+- Especificação completa com **20 requisitos funcionais, 12 não funcionais, 10 regras de negócio, 10 casos de uso** e matriz de rastreabilidade: 👉 [docs/requisitos-e-testes.md](docs/requisitos-e-testes.md)
+- Checagem de tipos com TypeScript no modo estrito.
 
 ## Tecnologias
 
 | Camada | Ferramentas |
 |---|---|
-| Aplicação | Next.js 15, React 19, TypeScript |
+| Interface | Next.js 15 (App Router), React 19, TypeScript, CSS |
 | API | Next.js Route Handlers (Node.js) |
-| Banco | PostgreSQL, `pg`, migrações SQL |
-| Autenticação | `scrypt`, sessões no PostgreSQL e cookies HTTP-only |
-| QR | Biblioteca `qrcode` e tokens temporários |
-| Testes | Node.js Test Runner |
+| Banco de dados | PostgreSQL, `pg`, migrações SQL |
+| Autenticação | scrypt, sessões no banco, cookies HTTP-only |
+| QR Code | `qrcode` + tokens temporários |
+| Testes | Node.js Test Runner, roteiro de testes de API, Playwright |
+| Ambiente | Docker (PostgreSQL), WSL, VS Code |
 
-## Instalação em ambiente de demonstração
+## Minha participação
 
-**Requisitos:** Node.js 22, npm e PostgreSQL. **Não use o banco ou as credenciais da instalação real do evento.**
+- Desenvolvimento do sistema de inscrições em grupo.
+- **Módulo Caixa das Barracas:** levantamento de requisitos, modelagem do banco (turnos, vendas, movimentos), API, telas e relatórios.
+- **Qualidade:** especificação dos requisitos, casos de teste, roteiro de testes automatizados da API e matriz de rastreabilidade.
+- Artigo científico e banner apresentados no **VI Encontro de Pesquisa, Extensão e Inovação** da Uniguaçu.
 
-1. Clone seu fork/repositório e instale:
+## Equipe
 
-   ```bash
-   git clone https://github.com/SEU-USUARIO/app-geek-portfolio.git
-   cd app-geek-portfolio
-   npm ci
-   ```
+Projeto acadêmico do curso de **Engenharia de Software — Faculdade Uniguaçu**.
 
-2. Crie um banco PostgreSQL **novo e vazio**, por exemplo `app_geek_demo`. No terminal PostgreSQL (ou no pgAdmin):
+- Gustavo Henrique Magagnin Silva
+- Lucas Vergopolan Proner
+- Mauricio Speth
 
-   ```sql
-   CREATE DATABASE app_geek_demo;
-   ```
-
-3. Copie o modelo de ambiente:
-
-   ```powershell
-   Copy-Item .env.example .env.local
-   ```
-
-   Em Linux/macOS: `cp .env.example .env.local`.
-
-4. No `.env.local`, preencha `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME=app_geek_demo` e `PUBLIC_URL=http://localhost:3000`. Gere **duas chaves diferentes**, executando o comando abaixo duas vezes:
-
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   ```
-
-   Cole os resultados em `APP_SECRET` e `DEVICE_COOKIE_SECRET`. Crie uma senha forte para `BOOTSTRAP_ADMIN_PASSWORD` (**12 caracteres ou mais**). Todos esses valores são **privados**, usados só no `.env.local`.
-
-5. Crie as tabelas e a conta master (`admin`) no **banco de demonstração**:
-
-   ```bash
-   npm run db:migrate
-   npm run admin:bootstrap
-   ```
-
-   O bootstrap **não redefine senhas existentes**. Remova `BOOTSTRAP_ADMIN_PASSWORD` do `.env.local` depois do primeiro uso.
-
-6. Inicie e abra o login:
-
-   ```bash
-   npm run dev
-   ```
-
-   **http://localhost:3000/login**. O QR estará em `/qr`, e o painel em `/admin`. A rota `/cadastro` exige uma sessão QR válida para gravar um novo registro.
-
-> Em caso de `Cannot find module 'typescript'`, rode `npm install --include=dev`. Para banco remoto, configure TLS válido; o projeto aceita `DB_SSL=true` e `DB_CA_CERT_BASE64` para CA pública. Não desative a verificação de certificados.
-
-## Testes
-
-```bash
-npm run test:logic
-npm run typecheck
-npm run build
-```
-
-Os testes de lógica podem ser executados sem um banco real; os fluxos de cadastro e autenticação completos exigem um PostgreSQL de testes.
-
-## Estrutura
-
-```text
-src/app/           → páginas e APIs do App Router
-src/components/    → painel, QR, formulários e controles
-src/lib/           → autenticação, segurança, QR, exportações e DB
-sql/               → estrutura e migrações 001, 002 e 003
-scripts/           → migração, bootstrap e restauração de backup
-public/            → assets do formulário
-tests/             → testes automatizados
-docs/              → arquitetura, privacidade e publicação
-```
-
-## Segurança e privacidade
-
-- O **master é um papel no PostgreSQL**, não somente uma condição visual no React. Operações destrutivas exigem autorização na API e confirmação adicional.
-- O backup JSON pode conter **dados pessoais, hashes e sessões**: nunca coloque um backup real em issues, commits, prints públicos ou neste repositório. Ele não substitui um backup PostgreSQL integral (`pg_dump`).
-- O bloqueio por cookie **não identifica de forma absoluta um dispositivo físico**; limpeza de cookies e outros navegadores limitam essa proteção. Nome + tipo pode ter falsos positivos para homônimos.
-- Esta é uma cópia de portfólio do código. Não está configurada como uma demonstração pública com banco; rodar no GitHub **não hospeda** a aplicação.
-- Antes de qualquer publicação na internet, revise limites de acesso, privacidade (LGPD), segurança e carga.
-
-Consulte [SECURITY.md](SECURITY.md) e [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
-
-## 📸 Demonstração do sistema
-
-### Painel administrativo
-![Painel administrativo](docs/images/painel-admin.png)
-
-### Tela de login
-![Tela de login](docs/images/login.png)
-
-### QR Code dinâmico
-![QR Code para inscrição](docs/images/qr-code.png)
-
-### Cadastro de universitário
-![Cadastro de universitário](docs/images/cadastro-aluno.png)
-
-### Cadastro de professor
-![Cadastro de professor](docs/images/cadastro-professor.png)
-
-### Cadastro de visitante
-![Cadastro de visitante](docs/images/cadastro-visitante.png)
-
-### Proteção contra cadastros duplicados
-![Cadastro já realizado](docs/images/cadastro-realizado.png)
+Orientação: Prof. Junior Mateus Peters
